@@ -1,0 +1,151 @@
+Создайте приложение log13.
+[name] - to create if not exist
+(name) or .../name - already exist
+-----------------------------------------------------------------------------
+
+step 1: [C]> python manage.py startapp log13 (best way to do this on pyCharm)
+
+-----------------------------------------------------------------------------
+
+step 2: move [templates]> inside app-(log13)
+        create directory name = appName = [log13]
+        copy html into tamplates/<appName>/ [index.html]
+
+-----------------------------------------------------------------------------
+
+step 3: create inside app directory [static]
+        create directory name = appName
+        copy into .../static/appName [css, fonts, images, js, vendor, <ets/>]
+
+-----------------------------------------------------------------------------
+
+step 4: Откройте templates/login/index.html
+        и добавьте тэг <<<< {% load static %} >>>>.
+        Данный тег указывает Django, что необходимо
+        подгрузить статические файлы для данной html страницы.
+
+-----------------------------------------------------------------------------
+
+step 5: Теперь необходимо откорректировать все ссылки на статические ресурсы href.
+        Пример замены фавикона (Фавикон – значок вкладки WEB-страницы).
+
+         Исходная ссылка:
+
+      [   <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+    a [                     <<< change to django link style >>>
+      [   <link rel="icon" type="image/png" href="{% static "login/images/icons/favicon.ico" %}"/>
+
+      [   <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+    b [             <<< change to django link style >>>
+      [   <script src= {% static "login/vendor/jquery/jquery-3.2.1.min.js" %} ></script>
+
+                                                              |                     sector                 |
+    c [   <div class="login100-more" style="background-image: | url({% static "log13/images/bg-01.jpg" %}) | "></div>
+
+-----------------------------------------------------------------------------
+
+step 6: Добавьте приложение login в setting.py.
+        Если не добавите, то статические файлы Django не будет видеть.
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    '...',
+    'login'  <---this added
+]
+
+-----------------------------------------------------------------------------
+
+step 7: В файле urls.py включите приложение login в маршрут.
+
+from django.contrib import admin
+from django.urls import path, include  <--include added
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('login/', include('login.urls'))  <--line added
+]
+
+-----------------------------------------------------------------------------
+
+step 8: Добавьте обработчик (Class based view, CBV).
+        Обработчики на основе функций (Function based view, FBV)
+        использовать не будем (устарело). labOneApp/login/views.py  <--here
+
+from django.shortcuts import render
+from django.views.generic import View
+
+# Create your views here.
+class LoginView(View):
+	def get(self, request):
+		return render(request, 'login/index.html')
+
+-----------------------------------------------------------------------------
+
+step 9: Создайте appName/urls.py и добавьте следующий код.
+    Теперь класс <nameView> будет обрабатывать GET-запросы.
+
+from django.urls import path
+from <appName>.views import <nameView>
+
+urlpatterns = [
+	path('', <nameView>.as_view())
+	]
+
+-----------------------------------------------------------------------------
+step 10: Start DJANGO [C]> python manage.py runserver
+
+            while ERROR
+         1> Отредактируйте все остальные ссылки в вашей html странице.
+         2> Обновите страницу. Убедитесь, что отсутствуют в Console сообщения об ошибках.
+         3> Обновите страницу. Фавиком отобразится на вкладке страницы.
+
+-----------------------------------------------------------------------------
+Содание простого обработчика GET-запросов на основе классов (CBV) успешно завершено!
+-----------------------------------------------------------------------------
+
+Простой обработчик POST-запросов (Проверка имя пользователя и пароля)
+step 11: Найдите в .../templates/appName/index.html тег с началом (Форма начинается с <form
+
+        <form class="login100-form validate-form">   <---this
+        ...
+        code here
+        ...
+        </form>
+
+        и концом формы (форма завершается </form>
+
+        Добавьте тег в action URL login, метод запроса POST и csrf token.
+        CSRF токен предназначен для защиты от межсайтовых атак.
+        Т.к. URL POST-запроса совпадает с URL GET-запроса, то необходимо поставить точку.
+
+        <form action="." class="login100-form validate-form" method="post">
+            {% csrf_token %}
+
+            add --> action="."
+            add --> method="post"
+            add --> {% csrf_token %}
+
+-----------------------------------------------------------------------------
+
+step 12: Реализуйте обработчик POST-запросов в nameView.
+
+from django.http import HttpResponse  <---add this
+
+	def post(self, request):
+		html = '<html><body>'
+		for key, value in request.POST.items():
+			html += f'{key}: {value} <br>'
+		html += '</body></html>'
+		return HttpResponse (html)      <--- add post request
+
+-----------------------------------------------------------------------------
+Содание простого обработчика POST-запросов на основе классов (CBV) успешно завершено!
+-----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
